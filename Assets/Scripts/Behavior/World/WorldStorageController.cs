@@ -30,10 +30,18 @@ public class WorldStorageController : MonoBehaviour
             {
                 BlockPositionType positionType = blocks[i, j].positionType;
                 int tileIndex = WorldBlock.SPRITE_INDEX_PER_POSITION_TYPE[positionType];
-                Debug.Log("Tile index:" + tileIndex);
                 Tile tile = groundTiles[tileIndex];
                  tileMap.SetTile(new Vector3Int(j, i, 0), tile);
             }
         }
+  
+    }
+
+    private void mutateRandomBlock()
+    {
+        var i = Random.Range(0, blocks.GetLength(0));
+        var j = Random.Range(0, blocks.GetLength(1));
+        blocks[i, j].positionType = WorldBlockUtils.getRandomPositionType();
+
     }
 }
