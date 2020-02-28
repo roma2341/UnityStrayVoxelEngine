@@ -14,8 +14,22 @@ public class WorldCreatorController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-         
-       WorldBlock[,] worldBlocks = new WorldBlock[worldStorageController.worldHeight, worldStorageController.worldWidth];
+        //generate empty blocks
+
+        worldStorageController.WorldData = generateWorldData();
+    }
+
+    private WorldData generateWorldData()
+    {
+        WorldData data = new WorldData();
+        initBlocks(data);
+        initCaves(data, cavesCount);
+        return data;
+    }
+
+    private void initBlocks(WorldData worldData)
+    {
+        WorldBlock[,] worldBlocks = new WorldBlock[worldStorageController.worldHeight, worldStorageController.worldWidth];
         int initialX = worldStorageController.initialX;
         int initialY = worldStorageController.initialY;
         float worldWidth = worldStorageController.worldWidth;
@@ -28,35 +42,45 @@ public class WorldCreatorController : MonoBehaviour
                 worldBlocks[i, j] = WorldBlockUtils.getRandomWorldBlock();
             }
         }
-        //generate empty blocks
-        generateCaves(worldBlocks, cavesCount);
-        worldStorageController.blocks = worldBlocks;
-        Debug.Log("World blocks were generated:" + worldBlocks);
+        worldData.Blocks = worldBlocks;
     }
-
-    private void generateCaves(WorldBlock[,] blocks,int howMany)
+    private void initCaves(WorldData worldData, int howMany)
     {
         int cavesLeft = howMany;
         float worldWidth = worldStorageController.worldWidth;
         float worldHeight = worldStorageController.worldHeight;
+        Vector2Int? previousCavePosition = null;
         while (cavesLeft > 0)
         {
-            int randomI = Random.Range(0, blocks.GetLength(0) - caveSizeBlocks);
-            int randomJ = Random.Range(0, blocks.GetLength(1) - caveSizeBlocks);
-            Vector2Int? previousCavePosition = null;
+            int randomI = Random.Range(0, worldData.Blocks.GetLength(0) - caveSizeBlocks);
+            int randomJ = Random.Range(0, worldData.Blocks.GetLength(1) - caveSizeBlocks);
+
             Vector2Int cavePosition = new Vector2Int(randomI, randomJ);
             if (previousCavePosition.HasValue)
             {
-               // connectCaves(previousCavePosition.Value, cavePosition);
+                connectCaves(worldData.Blocks, previousCavePosition.Value, cavePosition);
             }
-            generateCave(blocks, cavePosition);
+            generateCave(worldData.Blocks, cavePosition);
+            previousCavePosition = cavePosition;
             cavesLeft--;
         }
 
     }
-    private void connectCaves(WorldBlock[,] blocks,Vector2 caveA, Vector2 CaveB) 
+    private void connectCaves(WorldBlock[,] blocks, Vector2Int caveA, Vector2Int caveB)
     {
-       
+        Vector2Int topCavePosition = caveA.y > caveB.y ? caveA : caveB;
+        Vector2Int bottomCavePosition = caveA.y < caveB.y ? caveA : caveB;
+        Vector2Int leftCavePosition = caveA.x < caveB.x ? caveA : caveB;
+        Vector2Int rightCavePosition = caveA.x > caveB.x ? caveA : caveB;
+
+        for (int i = bottomCavePosition.y; i < topCavePosition.y; i++)
+        {
+            for (int j = leftCavePosition.x; i < rightCavePosition.x; i++)
+            {
+                Debug.Log("Connecting cave:" + i + "-" + j);
+                blocks[i, j] = WorldBlockUtils.getEmptyBlock();
+            }
+        }
     }
     private void generateCave(WorldBlock[,] blocks, Vector2Int pos)
     {

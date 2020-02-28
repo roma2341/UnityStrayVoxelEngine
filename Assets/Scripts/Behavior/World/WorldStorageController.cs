@@ -4,12 +4,12 @@ using UnityEngine.Tilemaps;
 
 public class WorldStorageController : MonoBehaviour
 {
+    public WorldData WorldData { get; set; }
 
     public int worldWidth;
     public int worldHeight;
     public int initialX = 0;
     public int initialY = 0;
-    public WorldBlock[,] blocks { get; set; }
     public Tile[] groundTiles;
     public Tilemap tileMap { get; set; }
     private void Start()
@@ -28,7 +28,7 @@ public class WorldStorageController : MonoBehaviour
         {
             for (var j = initialX; j < worldWidth; j++)
             {
-                WorldBlock block = blocks[i, j];
+                WorldBlock block = WorldData.Blocks[i, j];
                 BlockPositionType positionType = block.PositionType;
                 int tileIndex = WorldBlock.SPRITE_INDEX_PER_POSITION_TYPE[positionType];
                 Tile tile = null;
@@ -44,9 +44,9 @@ public class WorldStorageController : MonoBehaviour
 
     private void mutateRandomBlock()
     {
-        var i = Random.Range(0, blocks.GetLength(0));
-        var j = Random.Range(0, blocks.GetLength(1));
-        blocks[i, j].PositionType = WorldBlockUtils.getRandomPositionType();
+        var i = Random.Range(0, WorldData.Blocks.GetLength(0));
+        var j = Random.Range(0, WorldData.Blocks.GetLength(1));
+        WorldData.Blocks[i, j].PositionType = WorldBlockUtils.getRandomPositionType();
 
     }
 }
