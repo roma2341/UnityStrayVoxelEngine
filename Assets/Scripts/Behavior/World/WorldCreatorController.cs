@@ -50,19 +50,23 @@ public class WorldCreatorController : MonoBehaviour
         float worldWidth = worldStorageController.worldWidth;
         float worldHeight = worldStorageController.worldHeight;
         Vector2Int? previousCavePosition = null;
+        RectInt[] cavesRects = new RectInt[howMany];
+        int currentCaveIndex = 0;
         while (cavesLeft > 0)
         {
             int randomI = Random.Range(0, worldData.Blocks.GetLength(0) - caveSizeBlocks);
             int randomJ = Random.Range(0, worldData.Blocks.GetLength(1) - caveSizeBlocks);
 
             Vector2Int cavePosition = new Vector2Int(randomI, randomJ);
-            if (previousCavePosition.HasValue)
+            if (previousCavePosition.HasValue /*&& Vector2Int.Distance(previousCavePosition.Value,cavePosition) < 10*/)
             {
                 connectCaves(worldData.Blocks, previousCavePosition.Value, cavePosition);
             }
             generateCave(worldData.Blocks, cavePosition);
+            cavesRects[currentCaveIndex] = new RectInt(cavePosition, new Vector2Int(caveSizeBlocks, caveSizeBlocks));
             previousCavePosition = cavePosition;
             cavesLeft--;
+            currentCaveIndex++;
         }
 
     }
@@ -73,9 +77,9 @@ public class WorldCreatorController : MonoBehaviour
         Vector2Int leftCavePosition = caveA.x < caveB.x ? caveA : caveB;
         Vector2Int rightCavePosition = caveA.x > caveB.x ? caveA : caveB;
 
-        for (int i = bottomCavePosition.y; i < topCavePosition.y; i++)
+        for (int i = bottomCavePosition.y + caveSizeBlocks; i < topCavePosition.y; i++)
         {
-            for (int j = leftCavePosition.x; i < rightCavePosition.x; i++)
+            for (int j = leftCavePosition.x + caveSizeBlocks; j < rightCavePosition.x; j++)
             {
                 Debug.Log("Connecting cave:" + i + "-" + j);
                 blocks[i, j] = WorldBlockUtils.getEmptyBlock();
