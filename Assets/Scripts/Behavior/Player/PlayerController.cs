@@ -17,9 +17,9 @@ public class PlayerController : MonoBehaviour
     }
 
     private PlayerGroundSensor groundSensor;
-    private bool m_grounded = false;
-    private bool m_combatIdle = false;
-    private bool m_isDead = false;
+    private bool isPlayerGrounded = false;
+    private bool isCombatIdle = false;
+    private bool isPlayerDead = false;
 
     // Use this for initialization
 
@@ -27,17 +27,17 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         //Check if character just landed on the ground
-        if (!m_grounded && groundSensor.State())
+        if (!isPlayerGrounded && groundSensor.State())
         {
-            m_grounded = true;
-            animator.SetBool("Grounded", m_grounded);
+            isPlayerGrounded = true;
+            animator.SetBool("Grounded", isPlayerGrounded);
         }
 
         //Check if character just started falling
-        if (m_grounded && !groundSensor.State())
+        if (isPlayerGrounded && !groundSensor.State())
         {
-            m_grounded = false;
-            animator.SetBool("Grounded", m_grounded);
+            isPlayerGrounded = false;
+            animator.SetBool("Grounded", isPlayerGrounded);
         }
 
         // -- Handle input and movement --
@@ -59,12 +59,12 @@ public class PlayerController : MonoBehaviour
         //Death
         if (Input.GetKeyDown("e"))
         {
-            if (!m_isDead)
+            if (!isPlayerDead)
                 animator.SetTrigger("Death");
             else
                 animator.SetTrigger("Recover");
 
-            m_isDead = !m_isDead;
+            isPlayerDead = !isPlayerDead;
         }
 
         //Hurt
@@ -79,14 +79,14 @@ public class PlayerController : MonoBehaviour
 
         //Change between idle and combat idle
         else if (Input.GetKeyDown("f"))
-            m_combatIdle = !m_combatIdle;
+            isCombatIdle = !isCombatIdle;
 
         //Jump
-        else if (Input.GetKeyDown("space") && m_grounded)
+        else if (Input.GetKeyDown("space") && isPlayerGrounded)
         {
             animator.SetTrigger("Jump");
-            m_grounded = false;
-            animator.SetBool("Grounded", m_grounded);
+            isPlayerGrounded = false;
+            animator.SetBool("Grounded", isPlayerGrounded);
             rigidBody.velocity = new Vector2(rigidBody.velocity.x, playerJumpForce);
             groundSensor.Disable(0.2f);
         }
@@ -96,7 +96,7 @@ public class PlayerController : MonoBehaviour
             animator.SetInteger("AnimState", 2);
 
         //Combat Idle
-        else if (m_combatIdle)
+        else if (isCombatIdle)
             animator.SetInteger("AnimState", 1);
 
         //Idle

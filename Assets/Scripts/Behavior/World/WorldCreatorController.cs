@@ -19,18 +19,11 @@ public class WorldCreatorController : MonoBehaviour
         {
             for (var j = initialX; j < worldWidth; j++)
             {
-                worldBlocks[i, j] = generateRandomWorldBlock();
+                worldBlocks[i, j] = WorldBlockUtils.getRandomWorldBlock();
             }
         }
         worldStorageController.blocks = worldBlocks;
         Debug.Log("World blocks were generated:" + worldBlocks);
-    }
-
-    WorldBlock generateRandomWorldBlock()
-    {
-        WorldBlock worldBlock = new WorldBlock();
-        worldBlock.positionType = WorldBlockUtils.getRandomPositionType();
-        return worldBlock;
     }
 
     // Update is called once per frame

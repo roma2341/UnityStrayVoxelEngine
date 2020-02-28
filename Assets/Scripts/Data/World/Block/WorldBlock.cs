@@ -5,8 +5,9 @@ using UnityEngine;
 public class WorldBlock 
 {
     SpritesService spritesController;
+   public BlockType BlockType { get; set; } = BlockType.EMPTY;
 
-   public BlockPositionType positionType { get; set; } = BlockPositionType.SNAIL_1;
+   public BlockPositionType PositionType { get; set; } = BlockPositionType.SNAIL_1;
 
    public static readonly Dictionary<BlockPositionType, int> SPRITE_INDEX_PER_POSITION_TYPE = new Dictionary<BlockPositionType, int>()
         {
@@ -30,7 +31,7 @@ public class WorldBlock
     void Start()
     {
         //SpriteRenderer renderer = gameObject.AddComponent<SpriteRenderer>();
-       // renderer.sprite = spritesController.getSprite(SPRITE_NAME_PER_POSITION_TYPE[positionType]);
+       // renderer.sprite = spritesController.getSprite(SPRITE_NAME_PER_POSITION_TYPE[PositionType]);
        // Debug.Log("sprite assigned:" + GetComponent<Renderer>().sprite.name);
     }
 

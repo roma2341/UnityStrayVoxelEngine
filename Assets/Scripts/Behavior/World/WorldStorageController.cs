@@ -28,9 +28,14 @@ public class WorldStorageController : MonoBehaviour
         {
             for (var j = initialX; j < worldWidth; j++)
             {
-                BlockPositionType positionType = blocks[i, j].positionType;
+                WorldBlock block = blocks[i, j];
+                BlockPositionType positionType = block.PositionType;
                 int tileIndex = WorldBlock.SPRITE_INDEX_PER_POSITION_TYPE[positionType];
-                Tile tile = groundTiles[tileIndex];
+                Tile tile = null;
+                if (block.BlockType == BlockType.GROUND)
+                {
+                    tile = groundTiles[tileIndex];
+                }
                  tileMap.SetTile(new Vector3Int(j, i, 0), tile);
             }
         }
@@ -41,7 +46,7 @@ public class WorldStorageController : MonoBehaviour
     {
         var i = Random.Range(0, blocks.GetLength(0));
         var j = Random.Range(0, blocks.GetLength(1));
-        blocks[i, j].positionType = WorldBlockUtils.getRandomPositionType();
+        blocks[i, j].PositionType = WorldBlockUtils.getRandomPositionType();
 
     }
 }
