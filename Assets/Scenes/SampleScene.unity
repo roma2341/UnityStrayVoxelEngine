@@ -243,7 +243,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4805181885227780, guid: 70082f89a727c894295f479494fbd88d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 4805181885227780, guid: 70082f89a727c894295f479494fbd88d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -357,10 +357,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   worldStorageController: {fileID: 1160453807}
-  caveSizeBlocks: 10
-  pathHeightBlocks: 10
+  caveSizeBlocks: 3
+  pathHeightBlocks: 2
   caveRangeBlocks: 10
-  cavesCount: 10
+  cavesCount: 2
 --- !u!4 &1160453805
 Transform:
   m_ObjectHideFlags: 0
