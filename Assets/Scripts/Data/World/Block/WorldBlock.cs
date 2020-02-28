@@ -7,7 +7,7 @@ public class WorldBlock
     SpritesService spritesController;
    public BlockType BlockType { get; set; } = BlockType.EMPTY;
 
-   public BlockPositionType PositionType { get; set; } = BlockPositionType.SNAIL_1;
+    public BlockPositionType PositionType { get; set; }
 
    public static readonly Dictionary<BlockPositionType, int> SPRITE_INDEX_PER_POSITION_TYPE = new Dictionary<BlockPositionType, int>()
         {
