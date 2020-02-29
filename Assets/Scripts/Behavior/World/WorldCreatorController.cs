@@ -138,9 +138,18 @@ public class WorldCreatorController : MonoBehaviour
                           ./-------------/.            `/-------------:-  
     */
          
-         rectX = isTopCaveAtLeftSide ? topCaveRect.xMax : bottomCaveRect.xMax;
+         rectX = isTopCaveAtLeftSide ? topCaveRect.x + (topCaveRect.width / 2) : bottomCaveRect.xMax;
          rectY = bottomCaveRect.y + (bottomCaveRect.height / 2) - (pathHeightBlocks / 2);
-        rectWidth = isTopCaveAtLeftSide ? bottomCaveRect.x + (bottomCaveRect.width / 2) - rectX : topCaveRect.x + (topCaveRect.width / 2) - rectX   ;
+        if (isTopCaveAtLeftSide)
+        {
+            //extrude path  to left
+            rectWidth =  bottomCaveRect.x - rectX;
+        }
+        else
+        {
+            //extrude path to right
+            rectWidth = topCaveRect.x + (topCaveRect.width / 2) - rectX;
+        }
         rectHeight = pathHeightBlocks;
         pathRect = new RectInt(rectX, rectY, rectWidth, rectHeight);
         for (int y = pathRect.y; y < pathRect.yMax; y++)
