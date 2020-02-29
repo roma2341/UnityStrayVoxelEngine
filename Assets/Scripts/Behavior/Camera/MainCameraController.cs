@@ -7,7 +7,7 @@ public class MainCameraController : MonoBehaviour
     public GameObject target;        //Public variable to store a reference to the player game object
     public bool freeMode = false;
     private Vector3 offset;
-    private float zPozition = 10;
+    private float zPozition = -10;
     // Start is called before the first frame update
     void Start()
     {

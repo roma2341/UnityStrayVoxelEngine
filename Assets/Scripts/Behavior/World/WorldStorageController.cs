@@ -4,16 +4,17 @@ using UnityEngine.Tilemaps;
 
 public class WorldStorageController : MonoBehaviour
 {
-    public WorldData WorldData { get; set; }
-
-    public int worldWidth;
-    public int worldHeight;
-    public int initialX = 0;
-    public int initialY = 0;
-    public Tile[] groundTiles;
+    private WorldData WorldData { get; set; } = new WorldData();
     public Tilemap tileMap { get; set; }
+
+
+    private WorldConfig config;
+    private Tile[] groundTiles;
+
+    private AbstractWorldDataHandler[] worldDataHandlers;
     private void Start()
     {
+        config = GetComponent<WorldConfig>();
         groundTiles = Resources.LoadAll<Tile>("Tiles/Ground");
         Transform tileMapTransform = transform.Find("BlockTilemap");
         if (tileMapTransform == null)
@@ -21,12 +22,20 @@ public class WorldStorageController : MonoBehaviour
             Debug.LogError("Tilemap not found !");
         }
         tileMap = tileMapTransform.gameObject.GetComponent<Tilemap>();
+        worldDataHandlers = new AbstractWorldDataHandler[]{
+            new BlocksGenerator(config),
+            new CavesGenerator(config)
+        };
+        foreach (AbstractWorldDataHandler worldDataHandler in worldDataHandlers)
+        {
+            worldDataHandler.handle(WorldData);
+        }
     }
     public void Update()
     {
-        for (var y = initialY; y < worldHeight; y++)
+        for (var y = config.initialY; y < config.worldHeight; y++)
         {
-            for (var x = initialX; x < worldWidth; x++)
+            for (var x = config.initialX; x < config.worldWidth; x++)
             {
                 WorldBlock block = WorldData.Blocks[x, y];
                 BlockPositionType positionType = block.PositionType;

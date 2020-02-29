@@ -173,6 +173,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 59092791}
+  freeMode: 0
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -200,7 +201,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 15
+  orthographic size: 30
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -334,9 +335,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1160453805}
-  - component: {fileID: 1160453804}
   - component: {fileID: 1160453806}
   - component: {fileID: 1160453807}
+  - component: {fileID: 1160453808}
   m_Layer: 0
   m_Name: World
   m_TagString: Untagged
@@ -344,23 +345,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1160453804
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1160453803}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fad989402a8a39942ad986d1ef4bd62f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  worldStorageController: {fileID: 1160453807}
-  caveSizeBlocks: 3
-  pathHeightBlocks: 2
-  caveRangeBlocks: 10
-  cavesCount: 2
 --- !u!4 &1160453805
 Transform:
   m_ObjectHideFlags: 0
@@ -401,11 +385,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff2f40df477d49848949cc387de7b081, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  worldWidth: 100
-  worldHeight: 100
+  groundTiles: []
+  config: {fileID: 1160453808}
+--- !u!114 &1160453808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1160453803}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7b3461007cbe2b4abb48f45c9d2cfa4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  caveSizeBlocks: 10
+  pathHeightBlocks: 5
+  pathWidthBlocks: 5
+  caveRangeBlocks: 10
+  cavesCount: 10
+  worldWidth: 0
+  worldHeight: 0
   initialX: 0
   initialY: 0
-  groundTiles: []
 --- !u!1 &1417873066
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,65 +1,31 @@
-﻿using System.IO;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-using YamlDotNet.RepresentationModel;
-
-public class WorldCreatorController : MonoBehaviour
+﻿using UnityEngine;
+using System.Collections;
+public class CavesGenerator : AbstractWorldDataHandler
 {
-    public WorldStorageController worldStorageController;
-    public int caveSizeBlocks = 10;
-    public int pathHeightBlocks = 5;
-    public int pathWidthBlocks = 5;
-    public int caveRangeBlocks = 10;
-    public int cavesCount = 10;
- 
-    // Start is called before the first frame update
-    void Start()
-    {
-        //generate empty blocks
 
-        worldStorageController.WorldData = generateWorldData();
-    }
-
-    private WorldData generateWorldData()
+    public CavesGenerator(WorldConfig config) : base(config)
     {
-        WorldData data = new WorldData();
-        initBlocks(data);
-        initCaves(data, cavesCount);
-        return data;
+        
     }
-
-    private void initBlocks(WorldData worldData)
+    public override void handle(WorldData data)
     {
-        WorldBlock[,] worldBlocks = new WorldBlock[worldStorageController.worldWidth, worldStorageController.worldHeight];
-        int initialX = worldStorageController.initialX;
-        int initialY = worldStorageController.initialY;
-        float worldWidth = worldStorageController.worldWidth;
-        float worldHeight = worldStorageController.worldHeight;
-        //generate solid blocks
-        for (var i = initialY; i < worldHeight; i++)
-        {
-            for (var j = initialX; j < worldWidth; j++)
-            {
-                worldBlocks[j,i] = WorldBlockUtils.getRandomWorldBlock();
-            }
-        }
-        worldData.Blocks = worldBlocks;
+        initCaves(data);
     }
-    private void initCaves(WorldData worldData, int howMany)
+    private void initCaves(WorldData worldData)
     {
-        int cavesLeft = howMany;
-        float worldWidth = worldStorageController.worldWidth;
-        float worldHeight = worldStorageController.worldHeight;
-        worldData.CavesRects = new RectInt[howMany];
+        int cavesLeft = config.cavesCount;
+        float worldWidth = config.worldWidth;
+        float worldHeight = config.worldHeight;
+        worldData.CavesRects = new RectInt[config.cavesCount];
         int currentCaveIndex = 0;
         while (cavesLeft > 0)
         {
-            int randomY = Random.Range(0, worldData.Blocks.GetLength(0) - caveSizeBlocks);
-            int randomX = Random.Range(0, worldData.Blocks.GetLength(1) - caveSizeBlocks);
+            int randomY = Random.Range(0, worldData.Blocks.GetLength(0) - config.caveSizeBlocks);
+            int randomX = Random.Range(0, worldData.Blocks.GetLength(1) - config.caveSizeBlocks);
 
             Vector2Int cavePosition = new Vector2Int(randomY, randomX);
             generateCave(worldData, cavePosition);
-            worldData.CavesRects[currentCaveIndex] =  new RectInt(cavePosition, new Vector2Int(caveSizeBlocks, caveSizeBlocks));
+            worldData.CavesRects[currentCaveIndex] = new RectInt(cavePosition, new Vector2Int(config.caveSizeBlocks, config.caveSizeBlocks));
             cavesLeft--;
             currentCaveIndex++;
         }
@@ -68,12 +34,12 @@ public class WorldCreatorController : MonoBehaviour
     private void connectAllCaves(WorldData worldData)
     {
         RectInt[] sortedCaves = worldData.getCavesRectsSortedByXY();
-        for(int i = 0; i < sortedCaves.Length - 1; i++)
+        for (int i = 0; i < sortedCaves.Length - 1; i++)
         {
             bool souldConnectWithNext = true;// Random.value > .5;
-            if(souldConnectWithNext)
+            if (souldConnectWithNext)
             {
-                connectTwoCaves(worldData,sortedCaves[i], sortedCaves[i + 1]);
+                connectTwoCaves(worldData, sortedCaves[i], sortedCaves[i + 1]);
             }
         }
     }
@@ -105,9 +71,9 @@ public class WorldCreatorController : MonoBehaviour
                           ./-------------/.            `/-------------:-  
          */
 
-        int rectX = topCaveRect.x + (topCaveRect.width / 2) - (pathWidthBlocks / 2);
-        int rectY = bottomCaveRect.y + (bottomCaveRect.height / 2) - (pathHeightBlocks / 2);
-        int rectWidth = pathWidthBlocks;
+        int rectX = topCaveRect.x + (topCaveRect.width / 2) - (config.pathWidthBlocks / 2);
+        int rectY = bottomCaveRect.y + (bottomCaveRect.height / 2) - (config.pathHeightBlocks / 2);
+        int rectWidth = config.pathWidthBlocks;
         int rectHeight = topCaveRect.y - rectY;
         RectInt pathRect = new RectInt(rectX, rectY, rectWidth, rectHeight);
         for (int y = pathRect.y; y < pathRect.yMax; y++)
@@ -137,20 +103,20 @@ public class WorldCreatorController : MonoBehaviour
                           :-             :.            `/             ./                            
                           ./-------------/.            `/-------------:-  
     */
-         
-         rectX = isTopCaveAtLeftSide ? topCaveRect.x + (topCaveRect.width / 2) : bottomCaveRect.xMax;
-         rectY = bottomCaveRect.y + (bottomCaveRect.height / 2) - (pathHeightBlocks / 2);
+
+        rectX = isTopCaveAtLeftSide ? topCaveRect.x + (topCaveRect.width / 2) : bottomCaveRect.xMax;
+        rectY = bottomCaveRect.y + (bottomCaveRect.height / 2) - (config.pathHeightBlocks / 2);
         if (isTopCaveAtLeftSide)
         {
             //extrude path  to left
-            rectWidth =  bottomCaveRect.x - rectX;
+            rectWidth = bottomCaveRect.x - rectX;
         }
         else
         {
             //extrude path to right
             rectWidth = topCaveRect.x + (topCaveRect.width / 2) - rectX;
         }
-        rectHeight = pathHeightBlocks;
+        rectHeight = config.pathHeightBlocks;
         pathRect = new RectInt(rectX, rectY, rectWidth, rectHeight);
         for (int y = pathRect.y; y < pathRect.yMax; y++)
         {
@@ -163,21 +129,13 @@ public class WorldCreatorController : MonoBehaviour
     }
     private void generateCave(WorldData worldData, Vector2Int pos)
     {
-        for (int y = pos.y; y < pos.y + caveSizeBlocks; y++)
+        for (int y = pos.y; y < pos.y + config.caveSizeBlocks; y++)
         {
-            for (int x = pos.x; x < pos.x + caveSizeBlocks; x++)
+            for (int x = pos.x; x < pos.x + config.caveSizeBlocks; x++)
             {
-                worldData.Blocks[x,y] = WorldBlockUtils.getEmptyBlock();
+                worldData.Blocks[x, y] = WorldBlockUtils.getEmptyBlock();
             }
         }
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-
 
 }
