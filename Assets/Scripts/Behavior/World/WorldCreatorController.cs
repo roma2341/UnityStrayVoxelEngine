@@ -7,7 +7,8 @@ public class WorldCreatorController : MonoBehaviour
 {
     public WorldStorageController worldStorageController;
     public int caveSizeBlocks = 10;
-    public int pathHeightBlocks = 10;
+    public int pathHeightBlocks = 5;
+    public int pathWidthBlocks = 5;
     public int caveRangeBlocks = 10;
     public int cavesCount = 10;
  
@@ -29,7 +30,7 @@ public class WorldCreatorController : MonoBehaviour
 
     private void initBlocks(WorldData worldData)
     {
-        WorldBlock[,] worldBlocks = new WorldBlock[worldStorageController.worldHeight, worldStorageController.worldWidth];
+        WorldBlock[,] worldBlocks = new WorldBlock[worldStorageController.worldWidth, worldStorageController.worldHeight];
         int initialX = worldStorageController.initialX;
         int initialY = worldStorageController.initialY;
         float worldWidth = worldStorageController.worldWidth;
@@ -39,7 +40,7 @@ public class WorldCreatorController : MonoBehaviour
         {
             for (var j = initialX; j < worldWidth; j++)
             {
-                worldBlocks[i, j] = WorldBlockUtils.getRandomWorldBlock();
+                worldBlocks[j,i] = WorldBlockUtils.getRandomWorldBlock();
             }
         }
         worldData.Blocks = worldBlocks;
@@ -49,50 +50,115 @@ public class WorldCreatorController : MonoBehaviour
         int cavesLeft = howMany;
         float worldWidth = worldStorageController.worldWidth;
         float worldHeight = worldStorageController.worldHeight;
-        Vector2Int? previousCavePosition = null;
-        RectInt[] cavesRects = new RectInt[howMany];
+        worldData.CavesRects = new RectInt[howMany];
         int currentCaveIndex = 0;
         while (cavesLeft > 0)
         {
-            int randomI = Random.Range(0, worldData.Blocks.GetLength(0) - caveSizeBlocks);
-            int randomJ = Random.Range(0, worldData.Blocks.GetLength(1) - caveSizeBlocks);
+            int randomY = Random.Range(0, worldData.Blocks.GetLength(0) - caveSizeBlocks);
+            int randomX = Random.Range(0, worldData.Blocks.GetLength(1) - caveSizeBlocks);
 
-            Vector2Int cavePosition = new Vector2Int(randomI, randomJ);
-            if (previousCavePosition.HasValue /*&& Vector2Int.Distance(previousCavePosition.Value,cavePosition) < 10*/)
-            {
-                connectCaves(worldData.Blocks, previousCavePosition.Value, cavePosition);
-            }
-            generateCave(worldData.Blocks, cavePosition);
-            cavesRects[currentCaveIndex] = new RectInt(cavePosition, new Vector2Int(caveSizeBlocks, caveSizeBlocks));
-            previousCavePosition = cavePosition;
+            Vector2Int cavePosition = new Vector2Int(randomY, randomX);
+            generateCave(worldData, cavePosition);
+            worldData.CavesRects[currentCaveIndex] =  new RectInt(cavePosition, new Vector2Int(caveSizeBlocks, caveSizeBlocks));
             cavesLeft--;
             currentCaveIndex++;
         }
-
+        connectAllCaves(worldData);
     }
-    private void connectCaves(WorldBlock[,] blocks, Vector2Int caveA, Vector2Int caveB)
+    private void connectAllCaves(WorldData worldData)
     {
-        Vector2Int topCavePosition = caveA.y > caveB.y ? caveA : caveB;
-        Vector2Int bottomCavePosition = caveA.y < caveB.y ? caveA : caveB;
-        Vector2Int leftCavePosition = caveA.x < caveB.x ? caveA : caveB;
-        Vector2Int rightCavePosition = caveA.x > caveB.x ? caveA : caveB;
-
-        for (int i = bottomCavePosition.y + caveSizeBlocks; i < topCavePosition.y; i++)
+        RectInt[] sortedCaves = worldData.getCavesRectsSortedByXY();
+        for(int i = 0; i < sortedCaves.Length - 1; i++)
         {
-            for (int j = leftCavePosition.x + caveSizeBlocks; j < rightCavePosition.x; j++)
+            bool souldConnectWithNext = true;// Random.value > .5;
+            if(souldConnectWithNext)
             {
-                Debug.Log("Connecting cave:" + i + "-" + j);
-                blocks[i, j] = WorldBlockUtils.getEmptyBlock();
+                connectTwoCaves(worldData,sortedCaves[i], sortedCaves[i + 1]);
             }
         }
     }
-    private void generateCave(WorldBlock[,] blocks, Vector2Int pos)
+    private void connectTwoCaves(WorldData worldData, RectInt caveA, RectInt caveB)
     {
-        for (int i = pos.y; i < pos.y + caveSizeBlocks; i++)
+        RectInt topCaveRect = caveA.y > caveB.y ? caveA : caveB;
+        RectInt bottomCaveRect = caveA.y < caveB.y ? caveA : caveB;
+        bool isTopCaveAtLeftSide = topCaveRect.x < bottomCaveRect.x;
+        // RectInt leftCaveRect = caveA.x < caveB.x ? caveA : caveB;
+        //  RectInt rightCaveRect = caveA.x > caveB.x ? caveA : caveB;
+
+        /*Draw this part (marked with 1)
+ .:-------------:`                                                              .:-------------:`   
+ :.             /.                                                              :-             /.   
+ :.             /+------------------::                     /--------------------s-             /.   
+ :.             //                  ./                     o                    o-             /.   
+ :.             //                  ./                     o                    o-             /.   
+ :.             /+--------------+/::/o                     -+-----+-------------o-             /.   
+ ::....-------..+`              1    1                      1     1             -:.....-----.../.   
+  `````s...../:``               1    1                      1     1              ``````s---s````    
+       1      1                 1    1                      1     1                    1   1        
+       1      1                 1`   1                      1     1                    1   1        
+       1      1           -/----/::::/---/.            `+---+:::::/---:-               1   1        
+       1      1           :-             :.            `/             ./               1   1        
+       1      1-----------o-             :.            `/             .h---------------/---/-/      
+       1`````o-           h-             :.            `/             .d                     o      
+       ------::-----------o-             :.            `/             .h---------------------/      
+                          :-             :.            `/             ./                            
+                          ./-------------/.            `/-------------:-  
+         */
+
+        int rectX = topCaveRect.x + (topCaveRect.width / 2) - (pathWidthBlocks / 2);
+        int rectY = bottomCaveRect.y + (bottomCaveRect.height / 2) - (pathHeightBlocks / 2);
+        int rectWidth = pathWidthBlocks;
+        int rectHeight = topCaveRect.y - rectY;
+        RectInt pathRect = new RectInt(rectX, rectY, rectWidth, rectHeight);
+        for (int y = pathRect.y; y < pathRect.yMax; y++)
         {
-            for (int j = pos.x; j < pos.x + caveSizeBlocks; j++)
+            for (int x = pathRect.x; x < pathRect.xMax; x++)
             {
-                blocks[i, j] = WorldBlockUtils.getEmptyBlock();
+                worldData.Blocks[x, y] = WorldBlockUtils.getEmptyBlock();
+            }
+        }
+
+        /*Draw this part (marked with 1)
+ .:-------------:`                                                              .:-------------:`   
+ :.             /.                                                              :-             /.   
+ :.             /+111111111111111111::                     /11111111111111111111s-             /.   
+ :.             //                  ./                     o                    o-             /.   
+ :.             //                  ./                     o                    o-             /.   
+ :.             /+11111111111111+/::/o                     1+11111+1111111111111o-             /.   
+ ::....-------..+`              o    o                      o     o             -:.....-----.../.   
+  `````s...../:``               o    o                      o     o              ``````s---s````    
+       o     :-                 o    o                      o     o                    o   o        
+       o     :-                 o`   o                      o     o                    o   o        
+       o     :-           -/----/::::/---/.            `+---+:::::/---:-               o   o        
+       o     :-           :-             :.            `/             ./               o   o        
+       o     //11111111111o-             :.            `/             .h111111111111111/---/-/      
+       o`````o-           h-             :.            `/             .d                     o      
+       ------::11111111111o-             :.            `/             .h111111111111111111111/      
+                          :-             :.            `/             ./                            
+                          ./-------------/.            `/-------------:-  
+    */
+         
+         rectX = isTopCaveAtLeftSide ? topCaveRect.xMax : bottomCaveRect.xMax;
+         rectY = bottomCaveRect.y + (bottomCaveRect.height / 2) - (pathHeightBlocks / 2);
+        rectWidth = isTopCaveAtLeftSide ? bottomCaveRect.x + (bottomCaveRect.width / 2) - rectX : topCaveRect.x + (topCaveRect.width / 2) - rectX   ;
+        rectHeight = pathHeightBlocks;
+        pathRect = new RectInt(rectX, rectY, rectWidth, rectHeight);
+        for (int y = pathRect.y; y < pathRect.yMax; y++)
+        {
+            for (int x = pathRect.x; x < pathRect.xMax; x++)
+            {
+                worldData.Blocks[x, y] = WorldBlockUtils.getEmptyBlock();
+            }
+        }
+
+    }
+    private void generateCave(WorldData worldData, Vector2Int pos)
+    {
+        for (int y = pos.y; y < pos.y + caveSizeBlocks; y++)
+        {
+            for (int x = pos.x; x < pos.x + caveSizeBlocks; x++)
+            {
+                worldData.Blocks[x,y] = WorldBlockUtils.getEmptyBlock();
             }
         }
     }

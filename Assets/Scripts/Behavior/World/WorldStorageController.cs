@@ -24,11 +24,11 @@ public class WorldStorageController : MonoBehaviour
     }
     public void Update()
     {
-        for (var i = initialY; i < worldHeight; i++)
+        for (var y = initialY; y < worldHeight; y++)
         {
-            for (var j = initialX; j < worldWidth; j++)
+            for (var x = initialX; x < worldWidth; x++)
             {
-                WorldBlock block = WorldData.Blocks[i, j];
+                WorldBlock block = WorldData.Blocks[x, y];
                 BlockPositionType positionType = block.PositionType;
                 int tileIndex = WorldBlock.SPRITE_INDEX_PER_POSITION_TYPE[positionType];
                 Tile tile = null;
@@ -36,7 +36,7 @@ public class WorldStorageController : MonoBehaviour
                 {
                     tile = groundTiles[tileIndex];
                 }
-                 tileMap.SetTile(new Vector3Int(j, i, 0), tile);
+                 tileMap.SetTile(new Vector3Int(x, y, 0), tile);
             }
         }
   
