@@ -201,7 +201,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 30
+  orthographic size: 15
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -304,6 +304,11 @@ PrefabInstance:
       propertyPath: m_GravityScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 61252362154681264, guid: 70082f89a727c894295f479494fbd88d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 482326002422886859, guid: 70082f89a727c894295f479494fbd88d,
         type: 3}
       propertyPath: playerVelocity
@@ -385,8 +390,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff2f40df477d49848949cc387de7b081, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundTiles: []
-  config: {fileID: 1160453808}
 --- !u!114 &1160453808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,8 +407,8 @@ MonoBehaviour:
   pathWidthBlocks: 5
   caveRangeBlocks: 10
   cavesCount: 10
-  worldWidth: 0
-  worldHeight: 0
+  worldWidth: 100
+  worldHeight: 100
   initialX: 0
   initialY: 0
 --- !u!1 &1417873066
